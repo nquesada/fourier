@@ -19,5 +19,19 @@ def test_gaussian(mu,k0,x0,N):
 	y = norm_gaussian(x-x0,mu=mu,k0=k0)
 	xt, yt = fourier_approx(x,y)
 	exact = np.exp(-1j*k0*x0)*norm_gaussian(xt-k0, mu = 1.0/mu,k0 = -x0)
-	#print(np.max(np.abs(yt-exact)), k0,x0)
 	assert np.allclose(yt, exact)
+
+
+@pytest.mark.parametrize("N", [400,401])
+@pytest.mark.parametrize("mu", [0.5,1,2])
+@pytest.mark.parametrize("k0", [-1,0,1])
+@pytest.mark.parametrize("x0", [-1,0,1])
+def test_gaussian_self_inverse(mu,k0,x0,N):
+	xf = 40
+	x = np.linspace(-xf,xf,N)
+	dx = x[1]-x[0]
+	y = norm_gaussian(x-x0,mu=mu,k0=k0)
+	xt, yt = fourier_approx(x,y)
+	xu, yu = fourier_approx(-xt, yt)
+	assert np.allclose(xu, -x)
+	assert np.allclose(yu, np.flip(y))
